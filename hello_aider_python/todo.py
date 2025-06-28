@@ -12,9 +12,10 @@ class Todo:
     def get_todos(self):
         try:
             response = self.supabase.table(self.table_name).select("*").execute()
-            if response.
+            if response.status_code == 200 and response. #Check for successful response and data
                 return response.data
             else:
+                logging.error(f"Error fetching todos: {response.error}")
                 return []
         except Exception as e:
             logging.error(f"Error fetching todos: {e}")
@@ -30,7 +31,7 @@ class Todo:
 
         try:
             response = self.supabase.table(self.table_name).insert({"task": task}).execute()
-            if response.
+            if response.status_code == 201 and response. #Check for successful response and data
                 return response.data[0]
             else:
                 logging.error(f"Error adding todo: {response.error}")
@@ -47,7 +48,7 @@ class Todo:
             #Explicit type checking
             todo_id = int(todo_id)
             response = self.supabase.table(self.table_name).delete().eq("id", todo_id).execute()
-            if response.
+            if response.status_code == 200 and response. #Check for successful response and data
                 return True
             else:
                 logging.error(f"Error deleting todo: {response.error}")
