@@ -12,7 +12,7 @@ class Todo:
     def get_todos(self):
         try:
             response = self.supabase.table(self.table_name).select("*").execute()
-            if response.  # Check if response.data is not empty
+            if response.
                 return response.data
             else:
                 return []
@@ -24,10 +24,13 @@ class Todo:
         if not task:
             logging.error("Error adding todo: Task cannot be empty.")
             return None
+        if len(task) > 255:  # Example maximum length; adjust as needed
+            logging.error("Error adding todo: Task is too long.")
+            return None
 
         try:
             response = self.supabase.table(self.table_name).insert({"task": task}).execute()
-            if response.  # Check if response.data is not empty
+            if response.
                 return response.data[0]
             else:
                 logging.error(f"Error adding todo: {response.error}")
@@ -40,14 +43,18 @@ class Todo:
         if not todo_id:
             logging.error("Error deleting todo: ID cannot be empty.")
             return None
-
         try:
+            #Explicit type checking
+            todo_id = int(todo_id)
             response = self.supabase.table(self.table_name).delete().eq("id", todo_id).execute()
-            if response.  # Check if response.data is not empty
+            if response.
                 return True
             else:
                 logging.error(f"Error deleting todo: {response.error}")
                 return False
+        except ValueError:
+            logging.error("Error deleting todo: Invalid todo ID.  Must be an integer.")
+            return False
         except Exception as e:
             logging.error(f"Error deleting todo: {e}")
             return False
