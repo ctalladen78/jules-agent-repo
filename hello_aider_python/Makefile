@@ -1,15 +1,20 @@
 # Makefile for hello_aider Python
 
-all: server.py
+.PHONY: all install run dev test clean
 
-greeting.py:
-    python3 -m compileall greeting.py
+all: install run
+
+install:
+	pip install -r requirements.txt
 
 run:
-    uvicorn main:app --reload
+	streamlit run streamlit_app.py
 
 dev:
-    uvicorn main:app --reload --host 0.0.0.0:3000
+	streamlit run streamlit_app.py --server.port 3000
 
 test:
-    pytest
+	pytest
+
+clean:
+	rm -rf __pycache__ *.pyc
