@@ -8,7 +8,7 @@ class Todo:
     def get_todos(self):
         try:
             response = self.supabase.table(self.table_name).select("*").execute()
-            if response.  # Check if response.data is not empty
+            if response.data and len(response.data) > 0: #Check if data exists and isn't empty
                 return response.data
             else:
                 return []
