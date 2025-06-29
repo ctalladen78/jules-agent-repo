@@ -3,24 +3,37 @@ from streamlit_supabase import auth, create_client
 import os
 from dotenv import load_dotenv
 from todo import Todo
+import logging
 
-# Load environment variables
+# Configure logging
+logging.basicConfig(level=logging.ERROR)
+
+# Load environment variables (only for Supabase)
 load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
-MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500)) # Default to 500 if not set
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # Added for OpenAI API usage
-
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500))  # Default to 500 if not set
 
 # Initialize Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 todo_manager = Todo(supabase)
 
 # Placeholder function - Replace with your actual token counting logic using OpenAI API
-def count_tokens(text):
+def count_tokens(text, openai_api_key):
     # Simulate token counting. Replace with your actual implementation using the OpenAI API.
     #  This example uses a simple word count as a proxy for token count.
-    return len(text.split())
+    try:
+        # Your actual OpenAI API token counting logic here using openai_api_key
+        # Example (replace with your actual implementation):
+        # import openai
+        # openai.api_key = openai_api_key
+        # response = openai.Completion.create(...)
+        # token_count = response['usage']['prompt_tokens']
+        # return token_count
+        return len(text.split())  # Placeholder
+    except Exception as e:
+        logging.error(f"Error counting tokens: {e}")
+        return -1 # Indicate an error
 
 
 st.set_page_config(page_title="To-Do App", page_icon="✅")
@@ -28,8 +41,6 @@ st.set_page_config(page_title="To-Do App", page_icon="✅")
 # Authentication
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
-elif not OPENAI_API_KEY:
-    st.error("Please set OPENAI_API_KEY environment variable.")
 else:
     # Authentication
     session = auth.session()
@@ -50,7 +61,10 @@ else:
         else:
             st.write("No todos found.")
 
-        # Add todo form -  Now uses React component for input
+        # OpenAI API key input in sidebar
+        openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+
+        # Add todo form - Now uses React component for input
         st.components.v1.html(
             """
             <div id="root"></div>
@@ -59,26 +73,28 @@ else:
             height=150,
         )
 
-
         # Handle todo addition from React component
         if st.request.method == 'POST':
             data = st.request.json()
             if data and 'prompt' in data:
                 new_todo = data['prompt']
-                token_count = count_tokens(new_todo) # Placeholder - Replace with actual token counting
-
-                # Pass token count to React component to disable submit button if needed
-                st.session_state['token_count'] = token_count
-
-                if token_count <= MAX_TOKENS:
-                    result = todo_manager.add_todo(new_todo)
-                    if result:
-                        st.success("Todo added successfully!")
-                        st.experimental_rerun()
+                if openai_api_key:
+                    token_count = count_tokens(new_todo, openai_api_key)
+                    if token_count == -1:
+                        st.error("Error counting tokens. Please check your OpenAI API key.")
                     else:
-                        st.error("Error adding todo.")
+                        st.session_state['token_count'] = token_count
+                        if token_count <= MAX_TOKENS:
+                            result = todo_manager.add_todo(new_todo)
+                            if result:
+                                st.success("Todo added successfully!")
+                                st.experimental_rerun()
+                            else:
+                                st.error("Error adding todo.")
+                        else:
+                            st.error(f"Todo exceeds token limit ({MAX_TOKENS} tokens). Please shorten your input.")
                 else:
-                    st.error(f"Todo exceeds token limit ({MAX_TOKENS} tokens).  Please shorten your input.")
+                    st.warning("Please enter your OpenAI API key.")
 
     else:
         st.warning("Please sign in to access your to-do list.")
