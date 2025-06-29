@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_supabase import auth, create_client # Added import for create_client
+from streamlit_supabase import auth, create_client
 import os
 from dotenv import load_dotenv
 from todo import Todo
@@ -66,6 +66,9 @@ else:
             if data and 'prompt' in data:
                 new_todo = data['prompt']
                 token_count = count_tokens(new_todo) # Placeholder - Replace with actual token counting
+
+                # Pass token count to React component to disable submit button if needed
+                st.session_state['token_count'] = token_count
 
                 if token_count <= MAX_TOKENS:
                     result = todo_manager.add_todo(new_todo)
