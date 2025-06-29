@@ -20,8 +20,9 @@ except Exception as e:
 
 st.title("Simple Todo App")
 
+MAX_TOKENS = 500  # Set your desired token limit here
+
 with st.sidebar:
-    
     # ... (Authentication code remains unchanged) ...
 
     # Display todos (only if signed in)
@@ -51,20 +52,31 @@ with st.sidebar:
             data = st.request.json()
             if data and 'prompt' in data:
                 new_todo = data['prompt']
-                result = todo_manager.add_todo(new_todo)
-                if result:
-                    st.success("Todo added successfully!")
-                    st.experimental_rerun()
+                token_count = count_tokens(new_todo) # Placeholder - Replace with actual token counting
+
+                if token_count <= MAX_TOKENS:
+                    result = todo_manager.add_todo(new_todo)
+                    if result:
+                        st.success("Todo added successfully!")
+                        st.experimental_rerun()
+                    else:
+                        st.error("Error adding todo.")
                 else:
-                    st.error("Error adding todo.")
+                    st.error(f"Todo exceeds token limit ({MAX_TOKENS} tokens).")
 
 
         # Delete todo functionality (remains unchanged)
         if todos:
-            # ... (Delete todo code remains unchanged)
-            # 
-        # else:
-            # st.warning("Please sign in to access your to-do list.")
-    # else:
-        # st.warning("Please sign in to access your to-do list.")
-    
+            # ... (Delete todo code remains unchanged) ...
+        else:
+            st.warning("Please sign in to access your to-do list.")
+    else:
+        st.warning("Please sign in to access your to-do list.")
+
+# Placeholder for token counting - REPLACE THIS WITH YOUR ACTUAL TOKEN COUNTING LOGIC
+def count_tokens(text):
+    # This is a placeholder.  Replace with a call to your token counting API or library.
+    # For example, you might use a library like tiktoken or a custom API endpoint.
+    #  This example just returns a dummy value.
+    return len(text.split())
+
