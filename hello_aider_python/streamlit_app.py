@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_supabase import auth
+from streamlit_supabase import auth, create_client # Added import for create_client
 import os
 from dotenv import load_dotenv
 from todo import Todo
