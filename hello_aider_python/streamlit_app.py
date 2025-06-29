@@ -9,14 +9,17 @@ load_dotenv()
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500)) # Default to 500 if not set
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY") # Added for OpenAI API usage
+
 
 # Initialize Supabase client
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 todo_manager = Todo(supabase)
 
-# Placeholder function - Replace with your actual token counting logic
+# Placeholder function - Replace with your actual token counting logic using OpenAI API
 def count_tokens(text):
-    # This is a placeholder.  Replace with your actual token counting logic.
+    # Simulate token counting. Replace with your actual implementation using the OpenAI API.
+    #  This example uses a simple word count as a proxy for token count.
     return len(text.split())
 
 
@@ -25,6 +28,8 @@ st.set_page_config(page_title="To-Do App", page_icon="✅")
 # Authentication
 if not SUPABASE_URL or not SUPABASE_KEY:
     st.error("Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
+elif not OPENAI_API_KEY:
+    st.error("Please set OPENAI_API_KEY environment variable.")
 else:
     # Authentication
     session = auth.session()
@@ -70,7 +75,7 @@ else:
                     else:
                         st.error("Error adding todo.")
                 else:
-                    st.error(f"Todo exceeds token limit ({MAX_TOKENS} tokens).")
+                    st.error(f"Todo exceeds token limit ({MAX_TOKENS} tokens).  Please shorten your input.")
 
     else:
         st.warning("Please sign in to access your to-do list.")
