@@ -21,6 +21,7 @@ except Exception as e:
 st.title("Simple Todo App")
 
 with st.sidebar:
+    
     # ... (Authentication code remains unchanged) ...
 
     # Display todos (only if signed in)
@@ -60,9 +61,10 @@ with st.sidebar:
 
         # Delete todo functionality (remains unchanged)
         if todos:
-            # ... (Delete todo code remains unchanged) ...
-        else:
-            st.warning("Please sign in to access your to-do list.")
-    else:
-        st.warning("Please sign in to access your to-do list.")
-
+            # ... (Delete todo code remains unchanged)
+            # 
+        # else:
+            # st.warning("Please sign in to access your to-do list.")
+    # else:
+        # st.warning("Please sign in to access your to-do list.")
+    
