@@ -61,6 +61,8 @@ with st.sidebar:
         # Delete todo functionality (remains unchanged)
         if todos:
             # ... (Delete todo code remains unchanged) ...
+        else:
+            st.warning("Please sign in to access your to-do list.")
     else:
         st.warning("Please sign in to access your to-do list.")
 
