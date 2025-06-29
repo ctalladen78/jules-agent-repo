@@ -1,3 +1,33 @@
+import streamlit as st
+from streamlit_supabase import auth
+import os
+from dotenv import load_dotenv
+from todo import Todo
+
+# Load environment variables
+load_dotenv()
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500)) # Default to 500 if not set
+
+# Initialize Supabase client
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+todo_manager = Todo(supabase)
+
+# Placeholder function - Replace with your actual token counting logic
+def count_tokens(text):
+    # This is a placeholder.  Replace with your actual token counting logic.
+    return len(text.split())
+
+
+st.set_page_config(page_title="To-Do App", page_icon="✅")
+
+# Authentication
+if not SUPABASE_URL or not SUPABASE_KEY:
+    st.error("Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
+else:
+    # Authentication
+    session = auth.session()
     if session:
         user = auth.get_user()
         st.write(f"Welcome, {user['email']}!")
@@ -5,9 +35,15 @@
         todos = todo_manager.get_todos()
         if todos:
             st.table(todos)
-            # ... (Delete todo code remains unchanged) ...
+            for todo in todos:
+                if st.button(f"Delete {todo['task']}", key=todo['id']):
+                    if todo_manager.delete_todo(todo['id']):
+                        st.success(f"Todo '{todo['task']}' deleted successfully!")
+                        st.experimental_rerun()
+                    else:
+                        st.error(f"Error deleting todo '{todo['task']}'.")
         else:
-            st.write("No todos found.") #Corrected this line
+            st.write("No todos found.")
 
         # Add todo form -  Now uses React component for input
         st.components.v1.html(
