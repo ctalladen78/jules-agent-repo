@@ -1,5 +1,5 @@
 import streamlit as st
-from streamlit_supabase import auth, create_client
+from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 from todo import Todo
@@ -14,8 +14,17 @@ SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500))  # Default to 500 if not set
 
+
+# Initialize connection.
+# conn = st.connection("supabase",type=SupabaseConnection)
+
 # Initialize Supabase client
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
+@st.cache_resource
+def init_connection():
+    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    
+
+supabase = init_connection()
 todo_manager = Todo(supabase)
 
 # Placeholder function - Replace with your actual token counting logic using OpenAI API
