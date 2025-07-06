@@ -30,6 +30,16 @@ if supabase_url and supabase_key:
     except Exception as e:
         st.error(f"Error connecting to Supabase: {e}")
 
+def count_tokens(text, openai_api_key):
+    # Simulate token counting. Replace with your actual implementation using the OpenAI API.
+    #  This example uses a simple word count as a proxy for token count.
+    try:
+        return len(text.split())  # Placeholder
+    except Exception as e:
+        logging.error(f"Error counting tokens: {e}")
+        return -1 # Indicate an error
+
+
 # Authentication and main app logic
 if supabase:
     auth = supabase.auth
@@ -87,13 +97,4 @@ if supabase:
         st.warning("Please sign in to access your to-do list.")
 else:
     st.warning("Please enter your Supabase credentials.")
-
-def count_tokens(text, openai_api_key):
-    # Simulate token counting. Replace with your actual implementation using the OpenAI API.
-    #  This example uses a simple word count as a proxy for token count.
-    try:
-        return len(text.split())  # Placeholder
-    except Exception as e:
-        logging.error(f"Error counting tokens: {e}")
-        return -1 # Indicate an error
 
