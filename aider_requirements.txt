@@ -3,3 +3,4 @@ python-dotenv
 supabase
 streamlit_supabase
 dotenv
+st-supabase-connection
