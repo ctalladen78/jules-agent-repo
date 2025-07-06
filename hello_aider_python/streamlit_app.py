@@ -1,5 +1,5 @@
 import streamlit as st
-# from supabase import create_client, Client
+from supabase import create_client, Client, Auth
 import os
 from dotenv import load_dotenv
 from todo import Todo
@@ -8,52 +8,31 @@ import logging
 # Configure logging
 logging.basicConfig(level=logging.ERROR)
 
-# Load environment variables (only for Supabase)
+# Load environment variables (if available, but prioritize sidebar input)
 load_dotenv()
-# set on st.sidebar
-# SUPABASE_URL = os.getenv("SUPABASE_URL")
-# SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500))  # Default to 500 if not set
-
-
-# Initialize connection.
-# conn = st.connection("supabase",type=SupabaseConnection)
-
-# Initialize Supabase client
-@st.cache_resource
-def init_connection():
-    # return create_client(SUPABASE_URL, SUPABASE_KEY)
-    return 
-    
-# https://github.com/SiddhantSadangi/st_supabase_connection
-# supabase = init_connection()
-# todo_manager = Todo(supabase)
-
-# Placeholder function - Replace with your actual token counting logic using OpenAI API
-def count_tokens(text, openai_api_key):
-    # Simulate token counting. Replace with your actual implementation using the OpenAI API.
-    #  This example uses a simple word count as a proxy for token count.
-    try:
-        # Your actual OpenAI API token counting logic here using openai_api_key
-        # Example (replace with your actual implementation):
-        # import openai
-        # openai.api_key = openai_api_key
-        # response = openai.Completion.create(...)
-        # token_count = response['usage']['prompt_tokens']
-        # return token_count
-        return len(text.split())  # Placeholder
-    except Exception as e:
-        logging.error(f"Error counting tokens: {e}")
-        return -1 # Indicate an error
-
 
 st.set_page_config(page_title="To-Do App", page_icon="✅")
 
-# Authentication
-if not SUPABASE_URL or not SUPABASE_KEY:
-    st.error("Please set SUPABASE_URL and SUPABASE_KEY environment variables.")
-else:
-    # Authentication
+# Sidebar for credentials
+st.sidebar.header("Credentials")
+supabase_url = st.sidebar.text_input("Supabase URL", type="password")
+supabase_key = st.sidebar.text_input("Supabase Key", type="password")
+openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
+
+# Initialize Supabase client (only if credentials are provided)
+supabase = None
+if supabase_url and supabase_key:
+    try:
+        supabase = create_client(supabase_url, supabase_key)
+        todo_manager = Todo(supabase)
+    except Exception as e:
+        st.error(f"Error connecting to Supabase: {e}")
+
+# Authentication and main app logic
+if supabase:
+    auth = supabase.auth
     session = auth.session()
     if session:
         user = auth.get_user()
@@ -71,9 +50,6 @@ else:
                         st.error(f"Error deleting todo '{todo['task']}'.")
         else:
             st.write("No todos found.")
-
-        # OpenAI API key input in sidebar
-        openai_api_key = st.sidebar.text_input("OpenAI API Key", type="password")
 
         # Add todo form - Now uses React component for input
         st.components.v1.html(
@@ -109,4 +85,15 @@ else:
 
     else:
         st.warning("Please sign in to access your to-do list.")
+else:
+    st.warning("Please enter your Supabase credentials.")
+
+def count_tokens(text, openai_api_key):
+    # Simulate token counting. Replace with your actual implementation using the OpenAI API.
+    #  This example uses a simple word count as a proxy for token count.
+    try:
+        return len(text.split())  # Placeholder
+    except Exception as e:
+        logging.error(f"Error counting tokens: {e}")
+        return -1 # Indicate an error
 
