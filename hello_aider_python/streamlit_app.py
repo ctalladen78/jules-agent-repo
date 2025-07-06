@@ -1,5 +1,5 @@
 import streamlit as st
-from supabase import create_client, Client
+# from supabase import create_client, Client
 import os
 from dotenv import load_dotenv
 from todo import Todo
@@ -10,8 +10,9 @@ logging.basicConfig(level=logging.ERROR)
 
 # Load environment variables (only for Supabase)
 load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY")
+# set on st.sidebar
+# SUPABASE_URL = os.getenv("SUPABASE_URL")
+# SUPABASE_KEY = os.getenv("SUPABASE_KEY")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500))  # Default to 500 if not set
 
 
@@ -21,11 +22,12 @@ MAX_TOKENS = int(os.getenv("MAX_TOKENS", 500))  # Default to 500 if not set
 # Initialize Supabase client
 @st.cache_resource
 def init_connection():
-    return create_client(SUPABASE_URL, SUPABASE_KEY)
+    # return create_client(SUPABASE_URL, SUPABASE_KEY)
+    return 
     
-
-supabase = init_connection()
-todo_manager = Todo(supabase)
+# https://github.com/SiddhantSadangi/st_supabase_connection
+# supabase = init_connection()
+# todo_manager = Todo(supabase)
 
 # Placeholder function - Replace with your actual token counting logic using OpenAI API
 def count_tokens(text, openai_api_key):
